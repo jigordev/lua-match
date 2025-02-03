@@ -29,7 +29,7 @@ local match = require("match")
 -- Define cases with different conditions
 local result1 = match(10, {
     [1] = function() return "Value is 1" end,
-    {5, 15} = function() return "Value is between 5 and 15" end,
+    [{5, 15}] = function() return "Value is between 5 and 15" end,
     ["_"] = function() return "Value not found" end
 })
 
@@ -37,7 +37,7 @@ print(result1)  -- Output: "Value is between 5 and 15"
 
 local result2 = match(3, {
     [1] = function() return "Value is 1" end,
-    {5, 15} = function() return "Value is between 5 and 15" end,
+    [{5, 15}] = function() return "Value is between 5 and 15" end,
     ["_"] = function() return "Value not found" end
 })
 
