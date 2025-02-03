@@ -39,34 +39,38 @@ local function tables_eq(tbl1, tbl2)
     return true
 end
 
+local function check_range(value, tbl)
+    return all_numbers(tbl) and #tbl == 2 and in_range(value, tbl[1], tbl[2])
+end
+
 function match(value, cases)
-    local none = cases["_"] or function (value) return nil end
+    local fallback = cases["_"] or function (value) return nil end
 
     for k, v in pairs(cases) do 
+        if type(v) ~= "function" then
+            error("Expected function as a result of the match")
+        end
+
         local t = type(k)
         if t == "nil" then
-            return none(value)
-        elseif t == "string" or t == "number" or t == "boolean" then
-            return k == value and v(value) or none(value)
+            error("Nil cannot be used as match value")
+        elseif (t == "string" or t == "number" or t == "boolean") and k == value then
+            return v(value)
         elseif t == "table" then
-            if all_numbers(k) and #k == 2 then
-                if in_range(value, k[1], k[2]) then
-                    return v(value)
-                else
-                    return none(value)
-                end
+            if check_range(value, k) then
+                return v(value)
             elseif tables_eq(k, value) then
                 return v(value)
-            else
-                return none(value)
             end
         elseif t == "function" then
             local result = k(value)
-            return (result or result == value) and v(value) or none(value)
+            if (result or result == value) then
+                return v(value)
+            end
         end
     end
 
-    return none(value)
+    return fallback(value)
 end
 
 return match
