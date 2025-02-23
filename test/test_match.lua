@@ -1,4 +1,5 @@
-local match = require("match")
+local match = require("match").match
+local range = require("match").range
 
 local function test_match()
     local cases = {
@@ -12,8 +13,8 @@ local function test_match()
     assert(match(3, cases) == 3)
 
     local range_cases = {
-        [{1, 5}] = function(value) return value * 3 end,
-        [{6, 10}] = function(value) return value + 1 end,
+        [range(1, 5)] = function(value) return value * 3 end,
+        [range(6, 10)] = function(value) return value + 1 end,
         ["_"] = function(value) return "out of range" end
     }
 
