@@ -1,50 +1,42 @@
-local function all_numbers(tbl)
-    for _, v in pairs(tbl) do
-        if type(v) ~= "number" then
-            return false
-        end
-    end
-    return true
-end
-
-local function in_range(n, s, e)
-    return n >= s and n <= e
-end
-
 local function tables_eq(tbl1, tbl2)
-    if tbl1 == tbl2 then
-        return true
-    end
+    if tbl1 == tbl2 then return true end
+    if type(tbl1) ~= "table" or type(tbl2) ~= "table" then return false end
 
-    if type(tbl1) ~= "table" or type(tbl2) ~= "table" then
-        return false
-    end
-
-    local count1 = 0
-    local count2 = 0
-
-    for _ in pairs(tbl1) do count1 = count1 + 1 end
-    for _ in pairs(tbl2) do count2 = count2 + 1 end
-
-    if count1 ~= count2 then
-        return false
-    end
-
+    local seen_keys = {}
     for k, v in pairs(tbl1) do
-        if not tables_eq(v, tbl2[k]) then
-            return false
-        end
+        if not tables_eq(v, tbl2[k]) then return false end
+        seen_keys[k] = true
+    end
+
+    for k in pairs(tbl2) do
+        if not seen_keys[k] then return false end
     end
 
     return true
 end
+
 
 local function check_range(value, tbl)
-    return all_numbers(tbl) and #tbl == 2 and in_range(value, tbl[1], tbl[2])
+    if not tbl._is_range then return false end
+    local start, finish, step = tbl.start, tbl.finish, tbl.step
+
+    if step == 0 then return value == start end
+    if step > 0 then
+        return value >= start and value <= finish and (value - start) % step == 0
+    else
+        return value <= start and value >= finish and (value - start) % step == 0
+    end
+end
+
+function range(start, finish, step)
+    return {start = start, finish = finish, step = step or 1, _is_range = true}
 end
 
 function match(value, cases)
-    local fallback = cases["_"] or function (value) return nil end
+    local fallback = function(_) return nil end
+    if type(cases["_"]) == "function" then
+        fallback = cases["_"]
+    end
 
     for k, v in pairs(cases) do 
         if type(v) ~= "function" then
@@ -64,13 +56,14 @@ function match(value, cases)
             end
         elseif t == "function" then
             local result = k(value)
-            if (result or result == value) then
-                return v(value)
-            end
+            if result ~= nil then return v(value) end
         end
     end
 
     return fallback(value)
 end
 
-return match
+return {
+    match = match,
+    range = range
+}
