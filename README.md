@@ -24,12 +24,13 @@ match(value, cases)
 ### Example
 
 ```lua
-local match = require("match")
+local match = require("match").match
+local range = require("match").range
 
 -- Define cases with different conditions
 local result1 = match(10, {
     [1] = function() return "Value is 1" end,
-    [{5, 15}] = function() return "Value is between 5 and 15" end,
+    [range(5, 15)] = function() return "Value is between 5 and 15" end,
     ["_"] = function() return "Value not found" end
 })
 
@@ -37,7 +38,7 @@ print(result1)  -- Output: "Value is between 5 and 15"
 
 local result2 = match(3, {
     [1] = function() return "Value is 1" end,
-    [{5, 15}] = function() return "Value is between 5 and 15" end,
+    [range(5, 15)] = function() return "Value is between 5 and 15" end,
     ["_"] = function() return "Value not found" end
 })
 
@@ -48,7 +49,7 @@ print(result2)  -- Output: "Value not found"
 
 - **String, Number, or Boolean Key**: When a string, number, or boolean is used as the key in the `cases` table, it checks if the value matches the key and then executes the corresponding function.
   
-- **Table Key (Range Check)**: If the key is a table, the library checks if the table contains two numbers and validates if the value is within the specified range.
+- **Range (Range Check)**: If the key for a range function, the library validates that the value is within the specified range.
   
 - **Table Key (Equality Check)**: If the table is not a range, it checks if the table matches the value exactly (using deep comparison).
   
